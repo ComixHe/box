@@ -1,27 +1,11 @@
-# 玲珑：沙箱
+#ll - box
 
-玲珑（Linglong） is the container application toolkit of deepin.
-
-玲珑是玲珑塔的简称，既表示容器能对应用有管控作用，也表明了应用/运行时/系统向塔一样分层的思想。
+ll-box is a standard oci runtime.
 
 ## Feature
 
+- [x] No root daemon, use setuid
 - [x] Standard oci runtime
-
-## Roadmap
-
-### Current
-
-- [ ] OCI Standard Box
-
-## Dependencies
-
-```bash
-#For release based on debian
-sudo apt-get install cmake build-essential libyaml-cpp-dev nlohmann-json3-dev libgtest-dev
-```
-
-## Installation
 
 ## Roadmap
 
@@ -30,33 +14,51 @@ sudo apt-get install cmake build-essential libyaml-cpp-dev nlohmann-json3-dev li
 - [ ] Configuration
     - [x] Root
     - [ ] Mount
-        - [ ] Cgroup
-    - [X] Hostname
+        - [x] Cgroup
+        - [ ] All support
+    - [x] Hostname
 - [ ] Linux Container
     - [x] Default Filesystems
-    - [X] Namespaces
+    - [x] Namespaces
         - [x] Network
-    - [X] User namespace mappings
+    - [x] User namespace mappings
     - [ ] Devices
     - [ ] Default Devices
-    - [ ] Control groups
+    - [ ] Control groups v2
+        - [ ] cpu
+        - [ ] memory
+        - [ ] pids
+        - [ ] devices
+        - [ ] io
+        - [ ] cpuset
+        - [ ] rdma
+        - [ ] perf_event
     - [ ] IntelRdt
     - [ ] Sysctl
-    - [ ] Seccomp
+    - [x] Seccomp
+        - [ ] full support of all syscall
+        - [ ] full support of arch
     - [ ] Rootfs Mount Propagation
     - [ ] Masked Paths
     - [ ] Readonly Paths
     - [ ] Mount Label
-- [ ] Extend
-    - [x] Container manager
-    - [x] Debug
-    - [ ] DBus proxy permission control
-    - [ ] Filesystem permission control base fuse
-    - [ ] X11&&Wayland security
 
-### TODO
+### Next
 
-- [ ] full support of parse all seccomp arch and syscall
+- [ ] TODO
+
+## Dependencies
+
+- [ ] C++11/STL
+- [ ] nlonmann-json3
+- [ ] gtest
+
+```bash
+#For release based on debian
+sudo apt-get cmake build-essential \
+  nlonmann-json3-dev \
+  libgtest-dev
+```
 
 ## Getting help
 
@@ -77,4 +79,8 @@ We encourage you to report issues and contribute changes
 
 ## License
 
-This project is licensed under [LGPL-3.0-or-later](LICENSE).
+Deepin Boot Maker is licensed under GPLv3.
+
+## Credits and references
+
+- [OStree](https://github.com/ostreedev/ostree)

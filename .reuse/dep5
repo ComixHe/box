@@ -53,8 +53,8 @@ Files: gschema/*.xml plugins/*.xml frame/*.xml .clog.toml plugins/*.json configs
 Copyright: None
 License: CC0-1.0
 
-# formatter config
-Files: .clang-format 3party/.clang-format .cmake-format.py
+# formatter and linter config
+Files: .clang-format .clang-tidy 3party/.clang-format .cmake-format.py
 Copyright: None
 License: CC0-1.0
 
@@ -67,3 +67,8 @@ License: CC0-1.0
 Files: frame/dbus/* plugins/disk-mount/dbus/dbusdiskmount.* plugins/power/dbus/dbuspower.* plugins/shutdown/dbus/dbuspowermanager.* plugins/tray/dbus/dbustraymanager.* src/module/dbus_ipc/* src/module/dbus_ipc/*
 Copyright: The Qt Company Ltd.
 License: CC0-1.0
+
+# CPM
+Files: cmake/CPM.cmake
+License: MIT
+Copyright: 2019-2022 Lars Melchior and contributors
