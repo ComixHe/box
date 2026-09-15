@@ -12,6 +12,7 @@
 #include <optional>
 #include <string_view>
 #include <type_traits>
+#include <utility>
 
 namespace linyaps_box::utils {
 
@@ -111,19 +112,19 @@ template <typename E, std::size_t N>
 class enum_table;
 
 template <typename E, std::size_t N>
-constexpr auto make_enum_table(std::string_view type_name, const enum_entry<E> (&arr)[N]) noexcept
-  -> enum_table<E, N>;
+constexpr auto make_enum_table(std::string_view type_name,
+                               const enum_entry<E> (&entries)[N]) noexcept -> enum_table<E, N>;
 
 template <typename E, std::size_t N>
-constexpr auto verify_enum_table(const enum_table<E, N> &entries) noexcept -> bool;
+constexpr auto verify_enum_table(const enum_table<E, N> &table) noexcept -> bool;
 
 template <typename E, std::size_t N>
 class enum_table
 {
 public:
-    constexpr enum_table(std::string_view name, const enum_entry<E> (&arr)[N]) noexcept
+    constexpr enum_table(std::string_view name, std::array<enum_entry<E>, N> arr) noexcept
         : type_name_(name)
-        , entries_(utils::to_array(arr))
+        , entries_(std::move(arr))
     {
     }
 
@@ -148,11 +149,6 @@ public:
 
         return std::nullopt;
     }
-
-    friend constexpr auto make_enum_table<>(std::string_view, const enum_entry<E> (&)[N]) noexcept
-      -> enum_table<E, N>;
-
-    friend constexpr auto verify_enum_table<>(const enum_table<E, N> &) noexcept -> bool;
 
     [[nodiscard]] constexpr auto type_name() const noexcept -> std::string_view
     {
@@ -207,39 +203,39 @@ template <typename E, std::size_t N>
 constexpr auto make_enum_table(std::string_view type_name,
                                const enum_entry<E> (&entries)[N]) noexcept -> enum_table<E, N>
 {
-    enum_table table(type_name, entries);
+    auto arr = utils::to_array(entries);
 
     // generate an ordered table at compile time
     if constexpr (is_bitmask_enum_v<E>) {
         using U = std::make_unsigned_t<detail::enum_underlying_t<E>>;
 
-        detail::shell_sort(span(table.entries_),
-                           [](const enum_entry<E> &a, const enum_entry<E> &b) {
-                               const auto a_u = static_cast<U>(a.value);
-                               const auto b_u = static_cast<U>(b.value);
-                               const auto a_pop = detail::popcount(a_u);
-                               const auto b_pop = detail::popcount(b_u);
-                               return a_pop > b_pop || (a_pop == b_pop && a_u < b_u);
-                           });
+        detail::shell_sort(span(arr), [](const enum_entry<E> &a, const enum_entry<E> &b) {
+            const auto a_u = static_cast<U>(a.value);
+            const auto b_u = static_cast<U>(b.value);
+            const auto a_pop = detail::popcount(a_u);
+            const auto b_pop = detail::popcount(b_u);
+            return a_pop > b_pop || (a_pop == b_pop && a_u < b_u);
+        });
     }
 
-    return table;
+    return enum_table<E, N>(type_name, std::move(arr));
 }
 
 template <typename E, std::size_t N>
 constexpr auto verify_enum_table(const enum_table<E, N> &table) noexcept -> bool
 {
     // value duplicates: leverage existing sort order for bitmask enums
+    const auto &entries = table.entries();
     if constexpr (is_bitmask_enum_v<E>) {
         for (std::size_t i = 1; i < N; ++i) {
-            if (table.entries_[i].value == table.entries_[i - 1].value) {
+            if (entries[i].value == entries[i - 1].value) {
                 return false;
             }
         }
     } else {
         for (std::size_t i = 0; i < N; ++i) {
             for (std::size_t j = i + 1; j < N; ++j) {
-                if (table.entries_[i].value == table.entries_[j].value) {
+                if (entries[i].value == entries[j].value) {
                     return false;
                 }
             }
@@ -249,7 +245,7 @@ constexpr auto verify_enum_table(const enum_table<E, N> &table) noexcept -> bool
     // name duplicates: shell sort by name then check adjacent
     std::array<enum_entry<E>, N> sorted;
     for (std::size_t i = 0; i < N; ++i) {
-        sorted[i] = table.entries_[i];
+        sorted[i] = entries[i];
     }
 
     detail::shell_sort(span(sorted), [](const enum_entry<E> &a, const enum_entry<E> &b) {

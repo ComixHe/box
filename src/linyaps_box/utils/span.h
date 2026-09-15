@@ -176,8 +176,6 @@ class span;
 template <typename T, std::size_t Extent>
 struct span_storage
 {
-    T *data_;
-
     constexpr span_storage() noexcept
         : data_(nullptr)
     {
@@ -191,14 +189,14 @@ struct span_storage
     [[nodiscard]] constexpr T *data() const noexcept { return data_; }
 
     [[nodiscard]] constexpr std::size_t size() const noexcept { return Extent; }
+
+private:
+    T *data_;
 };
 
 template <typename T>
 struct span_storage<T, dynamic_extent>
 {
-    T *data_;
-    std::size_t size_;
-
     constexpr span_storage() noexcept
         : data_(nullptr)
         , size_(0)
@@ -214,6 +212,10 @@ struct span_storage<T, dynamic_extent>
     [[nodiscard]] constexpr T *data() const noexcept { return data_; }
 
     [[nodiscard]] constexpr std::size_t size() const noexcept { return size_; }
+
+private:
+    T *data_;
+    std::size_t size_;
 };
 
 template <typename T, std::size_t Extent>
